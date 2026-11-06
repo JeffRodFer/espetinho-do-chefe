@@ -400,8 +400,9 @@ function desenharPainel() {
 
   // Laço que desenha cada produto da memória
   listaGlobalProdutos.forEach(item => {
-    let corBotao = item.ativo ? '#ff4757' : '#2ed573';
-    let textoBotao = item.ativo ? 'Desativar' : 'Ativar';
+    // Troque a palavra 'ativo' por 'disponivel'
+    let corBotao = item.disponivel ? '#ff4757' : '#2ed573';
+    let textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
 
     // AQUI ENTRA O NOVO LAYOUT ALINHADO COM FLEXBOX
     divLista.innerHTML += `
@@ -492,19 +493,15 @@ bebidas.forEach(desenharCaixinha);
 // ==========================================
 // 3. MUDA A COR NO CLIQUE (NA MEMÓRIA)
 // ==========================================
-function alternarStatus(idProduto) {
-  const produto = listaGlobalProdutos.find(item => item.id === idProduto);
-  if (produto) {
-    // Inverte o estado considerando a palavra 'ativo' que o layout novo usa
-    if (produto.ativo !== undefined) {
-      produto.ativo = !produto.ativo;
-    } else {
-      // Caso o banco de dados carregue originalmente como 'disponivel'
-      produto.disponivel = !produto.disponivel;
-      produto.ativo = produto.disponivel;
-    }
+function alternarStatus(id) {
+  const produto = listaGlobalProdutos.find(item => item.id === id);
 
-    desenharPainel(); // Redesenha a tela instantaneamente com a nova cor
+  if (produto) {
+    // Inverte apenas a palavra que o banco de dados entende: disponivel
+    produto.disponivel = !produto.disponivel;
+
+    // Atualiza a tela na hora para o botão ficar vermelho/verde
+    desenharPainel();
   }
 }
 
