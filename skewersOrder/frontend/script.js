@@ -492,10 +492,18 @@ bebidas.forEach(desenharCaixinha);
 // ==========================================
 // 3. MUDA A COR NO CLIQUE (NA MEMÓRIA)
 // ==========================================
-function alternarStatusLocal(idProduto) {
+function alternarStatus(idProduto) {
   const produto = listaGlobalProdutos.find(item => item.id === idProduto);
   if (produto) {
-    produto.disponivel = !produto.disponivel; // Inverte o valor
+    // Inverte o estado considerando a palavra 'ativo' que o layout novo usa
+    if (produto.ativo !== undefined) {
+      produto.ativo = !produto.ativo;
+    } else {
+      // Caso o banco de dados carregue originalmente como 'disponivel'
+      produto.disponivel = !produto.disponivel;
+      produto.ativo = produto.disponivel;
+    }
+
     desenharPainel(); // Redesenha a tela instantaneamente com a nova cor
   }
 }
