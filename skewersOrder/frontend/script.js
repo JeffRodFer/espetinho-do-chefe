@@ -129,19 +129,32 @@ carregarCardapio();
 // ===================================================
 
 function alterarQtd(id, valor) {
-  // 1. Encontra o produto na memória para checar o limite de estoque
   const produto = listaGlobalProdutos.find(item => item.id === id);
-
-  // 2. Calcula qual será a nova quantidade se a ação for permitida
   const novaQuantidade = (carrinho[id] || 0) + valor;
 
-  // 3. A TRAVA DO ESTOQUE: Se o cliente clicou em "+" (valor > 0) e vai ultrapassar o estoque
-  if (valor > 0 && novaQuantidade > produto.estoque) {
-    alert(`Desculpe, só temos ${produto.estoque} unidade(s) de ${produto.nome} no momento!`);
-    return; // O return funciona como um muro: trava a função aqui e não deixa somar
+  // Só acionamos os alertas se o cliente estiver a clicar no "+" (valor > 0)
+  if (valor > 0) {
+
+    // Regra 1: O gerente desativou o produto no painel
+    if (!produto.disponivel) {
+      alert("Item indisponível!");
+      return;
+    }
+
+    // Regra 2: O estoque acabou completamente
+    if (produto.estoque <= 0) {
+      alert("Estoque zerado!");
+      return;
+    }
+
+    // Regra 3: O cliente tentou pedir uma quantidade maior do que a que sobrou no estoque
+    if (novaQuantidade > produto.estoque) {
+      alert("Item em falta! Temos apenas " + produto.estoque + " unidade(s) disponível(is).");
+      return;
+    }
   }
 
-  // 4. A sua regra original intocada: atualiza se não for menor que zero
+  // Se passou pelas travas acima (ou se está a clicar no "-" para remover), atualiza o número
   if (novaQuantidade >= 0) {
     carrinho[id] = novaQuantidade;
     document.getElementById(`qtd-${id}`).innerText = carrinho[id];
