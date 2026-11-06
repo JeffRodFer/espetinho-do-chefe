@@ -567,3 +567,18 @@ function fecharPainelAdmin() {
     carregarCardapio();
   }
 }
+
+function limparCarrinho() {
+  // 1. Zera a memória do pedido
+  carrinho = {};
+
+  // 2. Zera todos os números que aparecem na tela para o cliente
+  listaGlobalProdutos.forEach(item => {
+    const contador = document.getElementById(`qtd-${item.id}`);
+    if (contador) {
+      contador.innerText = "0";
+    }
+  });
+
+  alert("O seu pedido foi limpo!");
+}
