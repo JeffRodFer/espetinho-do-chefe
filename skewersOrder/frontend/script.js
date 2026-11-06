@@ -456,50 +456,6 @@ function desenharPainel() {
 comidas = listaGlobalProdutos.filter(item => item.categoria === 'comida');
 bebidas = listaGlobalProdutos.filter(item => item.categoria === 'bebida');
 
-function desenharCaixinha(item) {
-  const corBotao = item.disponivel ? '#ff4d4d' : '#00cc66';
-  const textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
-
-  const div = document.createElement('div');
-  div.className = 'item-lista';
-  div.style = 'display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 10px;';
-
-  div.innerHTML = `
-      <div style="color: white; display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <strong>${item.nome}</strong><br>
-          <small>R$ ${parseFloat(item.preco).toFixed(2)} - ${item.categoria}</small>
-        </div>
-        <button onclick="alternarStatusLocal(${item.id})" 
-          style="background-color: ${corBotao}; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-          ${textoBotao}
-        </button>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; background-color: #222; padding: 10px; border-radius: 5px;">
-        <div>
-          <label style="color: white; font-size: 14px;">Estoque Atual:</label>
-          <input type="number" id="estoque_${item.id}" value="${item.estoque || 0}" 
-            onchange="atualizarEstoqueLocal(${item.id}, this.value)"
-            style="width: 60px; padding: 5px; margin-left: 5px; border-radius: 3px; border: 1px solid #ccc; text-align: center;">
-        </div>
-        
-        <button onclick="solicitarEstorno(${item.id}, '${item.nome}')" 
-          style="background-color: #ff9800; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px;">
-          ↩️ Estornar
-        </button>
-      </div>
-    `;
-  divLista.appendChild(div);
-}
-
-// Desenhando os títulos e as caixas agrupadas
-divLista.innerHTML += '<h2 style="color: white; margin-top: 15px;">🍖 Carnes</h2>';
-comidas.forEach(desenharCaixinha);
-
-divLista.innerHTML += '<h2 style="color: white; margin-top: 30px;">🥤 Bebidas</h2>';
-bebidas.forEach(desenharCaixinha);
-
 
 
 // ==========================================
