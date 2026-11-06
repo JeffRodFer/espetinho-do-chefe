@@ -54,10 +54,11 @@ header {
     /* O seu visual atual (mantivemos tudo) */
     background-color: #25D366;
     color: white;
-    padding: 6px 8px;
+    padding: 6px 10px;
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
+    gap: 5px;
 
     /* Novas linhas para fixar no canto direito */
     position: fixed;
