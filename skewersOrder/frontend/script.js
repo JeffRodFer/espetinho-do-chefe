@@ -129,32 +129,32 @@ carregarCardapio();
 // ===================================================
 
 function alterarQtd(id, valor) {
-  const produto = listaGlobalProdutos.find(item => item.id === id);
+  // Usamos == (dois iguais em vez de três) para ignorar a diferença entre texto e número
+  const produto = listaGlobalProdutos.find(item => item.id == id);
+
+  // Escudo protetor: Se por acaso não achar o produto, a função trava sem quebrar o site
+  if (!produto) {
+    console.error("Erro: Produto não encontrado na memória com o ID", id);
+    return;
+  }
+
   const novaQuantidade = (carrinho[id] || 0) + valor;
 
-  // Só acionamos os alertas se o cliente estiver a clicar no "+" (valor > 0)
   if (valor > 0) {
-
-    // Regra 1: O gerente desativou o produto no painel
     if (!produto.disponivel) {
       alert("Item indisponível!");
       return;
     }
-
-    // Regra 2: O estoque acabou completamente
     if (produto.estoque <= 0) {
       alert("Estoque zerado!");
       return;
     }
-
-    // Regra 3: O cliente tentou pedir uma quantidade maior do que a que sobrou no estoque
     if (novaQuantidade > produto.estoque) {
       alert("Item em falta! Temos apenas " + produto.estoque + " unidade(s) disponível(is).");
       return;
     }
   }
 
-  // Se passou pelas travas acima (ou se está a clicar no "-" para remover), atualiza o número
   if (novaQuantidade >= 0) {
     carrinho[id] = novaQuantidade;
     document.getElementById(`qtd-${id}`).innerText = carrinho[id];
