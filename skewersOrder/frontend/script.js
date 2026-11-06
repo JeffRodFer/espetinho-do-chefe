@@ -440,8 +440,8 @@ function desenharPainel() {
     `;
   });
 }
-const comidas = listaGlobalProdutos.filter(item => item.categoria === 'comida');
-const bebidas = listaGlobalProdutos.filter(item => item.categoria === 'bebida');
+comidas = listaGlobalProdutos.filter(item => item.categoria === 'comida');
+bebidas = listaGlobalProdutos.filter(item => item.categoria === 'bebida');
 
 function desenharCaixinha(item) {
   const corBotao = item.disponivel ? '#ff4d4d' : '#00cc66';
