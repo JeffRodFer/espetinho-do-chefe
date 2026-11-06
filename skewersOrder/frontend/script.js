@@ -2,21 +2,7 @@
 let credenciaisAdmin = { user: '', pass: '' };
 let listaGlobalProdutos = []; // Adicione esta linha!
 
-// Relógio Sincronizado (Horário de Brasília)
-function atualizarRelogio() {
-  const opcoes = {
-    timeZone: 'America/Sao_Paulo',
-    dateStyle: 'short',
-    timeStyle: 'medium'
-  };
 
-  const relogio = new Intl.DateTimeFormat('pt-BR', opcoes);
-  const dataFormatada = relogio.format(new Date());
-
-  document.getElementById('relogio').innerText = dataFormatada;
-}
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
 
 // ---------------------------------------------------
 // COMUNICAÇÃO COM O SERVIDOR
