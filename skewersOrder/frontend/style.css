@@ -61,7 +61,7 @@ header {
 
     /* Novas linhas para fixar no canto direito */
     position: fixed;
-    top: 15px;
+    bottom: 15px;
     right: 15px;
     top:auto;
     z-index: 1000;
