@@ -129,8 +129,21 @@ carregarCardapio();
 // ===================================================
 
 function alterarQtd(id, valor) {
-  if (carrinho[id] + valor >= 0) {
-    carrinho[id] += valor;
+  // 1. Encontra o produto na memória para checar o limite de estoque
+  const produto = listaGlobalProdutos.find(item => item.id === id);
+
+  // 2. Calcula qual será a nova quantidade se a ação for permitida
+  const novaQuantidade = (carrinho[id] || 0) + valor;
+
+  // 3. A TRAVA DO ESTOQUE: Se o cliente clicou em "+" (valor > 0) e vai ultrapassar o estoque
+  if (valor > 0 && novaQuantidade > produto.estoque) {
+    alert(`Desculpe, só temos ${produto.estoque} unidade(s) de ${produto.nome} no momento!`);
+    return; // O return funciona como um muro: trava a função aqui e não deixa somar
+  }
+
+  // 4. A sua regra original intocada: atualiza se não for menor que zero
+  if (novaQuantidade >= 0) {
+    carrinho[id] = novaQuantidade;
     document.getElementById(`qtd-${id}`).innerText = carrinho[id];
   }
 }

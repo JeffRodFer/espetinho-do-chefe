@@ -1,0 +1,600 @@
+// ATENÇÃO: Esta linha deve ficar solta no topo do arquivo script.js!
+let credenciaisAdmin = { user: '', pass: '' };
+let listaGlobalProdutos = []; // Adicione esta linha!
+
+
+
+// ---------------------------------------------------
+// COMUNICAÇÃO COM O SERVIDOR
+// ---------------------------------------------------
+
+// DICA: Use localhost enquanto estiver programando. 
+// Troque para a Vercel apenas quando for publicar o site.
+const API_URL = 'https://skewers-order-backend.vercel.app/api/cardapio';
+
+// ARQUIVO: script.js
+const url = 'https://skewers-order-backend.vercel.app/api/cardapio';
+
+fetch(url)
+  .then(resposta => resposta.json())
+  .then(dados => {
+    // Vamos ver os dados chegando no painel do navegador!
+    console.log("Meus espetinhos:", dados.produtos);
+  })
+  .catch(erro => console.error("Erro:", erro));
+
+let comidas = [];
+let bebidas = [];
+let carrinho = {};
+let dadosCliente = {};
+
+// CORREÇÃO: A gaveta do WhatsApp foi criada aqui
+let numeroZap = "";
+
+async function carregarCardapio() {
+  try {
+    const API_URL = 'https://skewers-order-backend.vercel.app';
+    const resposta = await fetch(url);
+
+    if (!resposta.ok) {
+      throw new Error("Erro na API");
+    }
+
+    const dadosDoServidor = await resposta.json();
+    numeroZap = dadosDoServidor.whatsapp;
+
+    // 1. Abre a "caixa grande" e prepara os produtos
+    const produtosProntos = dadosDoServidor.produtos.map(item => {
+      return {
+        id: item.id,
+        nome: item.nome,
+        preco: parseFloat(item.preco),
+        disponivel: item.disponivel,
+        categoria: item.categoria
+      };
+    });
+
+    // 2. Separa as "Comidas" e "Bebidas"
+    comidas = produtosProntos.filter(item =>
+      item.categoria.toLowerCase() === 'comida'
+    );
+
+    bebidas = produtosProntos.filter(item =>
+      item.categoria.toLowerCase() === 'bebida'
+    );
+
+    // 3. Coloca os itens na "vitrine" da página
+    renderizarLista(comidas, 'lista-carnes', 'item-carne');
+    renderizarLista(bebidas, 'lista-bebidas', 'item-bebida');
+
+  } catch (erro) {
+    console.error("Erro ao buscar cardápio:", erro);
+  }
+}
+
+
+// ---------------------------------------------------
+// FUNÇÕES DE INTERFACE VISUAL E CARRINHO
+// ---------------------------------------------------
+
+// Renderizar Produtos na Tela
+function renderizarLista(itens, idContainer, classeCor) {
+  const container = document.getElementById(idContainer);
+
+  // Dica de Especialista (Nível Médio): Essa trava de segurança evita que 
+  // o seu site quebre caso alguém apague a div do HTML sem querer.
+  if (!container) {
+    console.error(`Erro: Não encontrei a div id="${idContainer}" no HTML.`);
+    return;
+  }
+
+  container.innerHTML = '';
+
+  itens.forEach(item => {
+    // Se o item foi desativado no painel gerencial, ele é pulado e não aparece
+    if (!item.disponivel) return;
+
+    // Inicia a quantidade desse item no carrinho como Zero
+    carrinho[item.id] = 0;
+
+    const div = document.createElement('div');
+    div.className = `item-lista ${classeCor}`; // Adicionei 'item-lista' para manter o CSS que fizemos
+
+    // ... aqui você continua com o restante do seu código (os botões de + e -)
+
+    let precoFormatado = item.preco.toFixed(2).replace('.', ',');
+
+    div.innerHTML = `
+            <div>
+                <strong>${item.nome}</strong><br>
+                <small>R$ ${precoFormatado}</small>
+            </div>
+            <div class="controles">
+                <button class="btn-qtd" 
+                        onclick="alterarQtd('${item.id}', -1)">-</button>
+                <span id="qtd-${item.id}">0</span>
+                <button class="btn-qtd" 
+                        onclick="alterarQtd('${item.id}', 1)">+</button>
+            </div>
+        `;
+    container.appendChild(div);
+  });
+}
+
+// Inicializa o processo buscando os dados ao abrir a página
+carregarCardapio();
+
+// ===================================================
+// FUNÇÕES DE INTERAÇÃO E MODAIS
+// ===================================================
+
+function alterarQtd(id, valor) {
+  // 1. Encontra o produto na memória para checar o limite de estoque
+  const produto = listaGlobalProdutos.find(item => item.id === id);
+
+  // 2. Calcula qual será a nova quantidade se a ação for permitida
+  const novaQuantidade = (carrinho[id] || 0) + valor;
+
+  // 3. A TRAVA DO ESTOQUE: Se o cliente clicou em "+" (valor > 0) e vai ultrapassar o estoque
+  if (valor > 0 && novaQuantidade > produto.estoque) {
+    alert(`Desculpe, só temos ${produto.estoque} unidade(s) de ${produto.nome} no momento!`);
+    return; // O return funciona como um muro: trava a função aqui e não deixa somar
+  }
+
+  // 4. A sua regra original intocada: atualiza se não for menor que zero
+  if (novaQuantidade >= 0) {
+    carrinho[id] = novaQuantidade;
+    document.getElementById(`qtd-${id}`).innerText = carrinho[id];
+  }
+}
+
+function abrirModalCadastro() {
+  document.getElementById('modalCadastro').style.display = 'block';
+}
+
+function fecharModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function abrirModalAdmin() {
+  document.getElementById('modalAdmin').style.display = 'block';
+}
+
+function verificarEntrega() {
+  const tipo = document.getElementById('cli-tipo').value;
+  const divEnd = document.getElementById('div-endereco');
+  divEnd.style.display = (tipo === 'entregar') ? 'block' : 'none';
+}
+
+function salvarCadastro() {
+  dadosCliente = {
+    nome: document.getElementById('cli-nome').value,
+    telefone: document.getElementById('cli-telefone').value,
+    tipo: document.getElementById('cli-tipo').value,
+    endereco: document.getElementById('cli-endereco').value
+  };
+
+  if (!dadosCliente.nome) {
+    return alert("Por favor, preencha o seu nome!");
+  }
+
+  fecharModal('modalCadastro');
+  alert("Cadastro salvo! Escolha os seus espetinhos.");
+}
+
+// NOVA FUNÇÃO DO BOTÃO VOLTAR (Colocada logo abaixo)
+function fecharModalCadastro() {
+  const janelaCadastro = document.getElementById('modalCadastro');
+
+  if (janelaCadastro) {
+    janelaCadastro.style.display = 'none';
+  }
+}
+
+function abrirResumo() {
+  if (!dadosCliente.nome) {
+    alert("Clique em INICIAR PEDIDO primeiro para se identificar.");
+    return abrirModalCadastro();
+  }
+
+  let tipoTxt = dadosCliente.tipo === 'entregar'
+    ? `Entrega (${dadosCliente.endereco})`
+    : 'Retirada no local';
+
+  let html = `<strong>Cliente:</strong> ${dadosCliente.nome}<br>`;
+  html += `<strong>Tipo:</strong> ${tipoTxt}<br><br>`;
+
+  let total = 0;
+  const todosItens = [...comidas, ...bebidas];
+
+  // Variável para verificar se escolheu algo
+  let temItem = false;
+
+  html += `<strong>Itens Escolhidos:</strong><br>`;
+
+  todosItens.forEach(item => {
+    let qtd = carrinho[item.id];
+    if (qtd > 0) {
+      temItem = true;
+      let subtotal = qtd * item.preco;
+      total += subtotal;
+      let subFormatado = subtotal.toFixed(2).replace('.', ',');
+      html += `${qtd}x ${item.nome} - R$ ${subFormatado}<br>`;
+    }
+  });
+
+  // Trava: se não escolheu nada, avisa e não abre o resumo
+  if (!temItem) {
+    return alert("Por favor, escolha pelo menos um item antes de encerrar o pedido!");
+  }
+
+  if (dadosCliente.tipo === 'entregar') {
+    html += `<br><small>* Taxa de entrega a combinar.</small>`;
+  }
+
+  document.getElementById('conteudo-resumo').innerHTML = html;
+  let totalFormatado = total.toFixed(2).replace('.', ',');
+  document.getElementById('valor-total').innerText = `Total: R$ ${totalFormatado}`;
+
+  document.getElementById('modalResumo').style.display = 'block';
+}
+
+function enviarPedidoWhatsApp() {
+  const texto = document.getElementById('conteudo-resumo').innerText;
+  const total = document.getElementById('valor-total').innerText;
+
+  const querFarofa = document.querySelector('input[name="farofa"]:checked').value;
+  const querVinagrete = document.querySelector('input[name="vinagrete"]:checked').value;
+  const obs = document.getElementById('obs-pedido').value;
+
+  let extras = `\n*Acompanhamentos:*\n`;
+  extras += `- Farofa: ${querFarofa}\n`;
+  extras += `- Vinagrete: ${querVinagrete}\n`;
+
+  if (obs.trim() !== "") {
+    extras += `\n*Observações:*\n${obs}\n`;
+  }
+
+  let msg = `*Novo Pedido - Espetinho do Chefe*\n\n`;
+  msg += `${texto}\n`;
+  msg += `${extras}\n`;
+  msg += `*${total}*`;
+
+  // CORREÇÃO: Usa o número de WhatsApp que veio do seu servidor (.env)
+  let url = `https://wa.me/${numeroZap}?text=` + encodeURIComponent(msg);
+
+  // === NOVO BLOCO: DAR BAIXA AUTOMÁTICA NO ESTOQUE ===
+  const itensComprados = [];
+  const todosItens = [...comidas, ...bebidas];
+
+  todosItens.forEach(item => {
+    let qtd = carrinho[item.id];
+    if (qtd > 0) {
+      itensComprados.push({ id: item.id, quantidade: qtd });
+    }
+  });
+
+  if (itensComprados.length > 0) {
+    fetch('https://skewers-order-backend.vercel.app/api/registrar-venda', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itensCarrinho: itensComprados })
+    }).catch(erro => console.error("Erro ao abater estoque:", erro));
+  }
+  // === FIM DO NOVO BLOCO ===
+
+  window.open(url, '_blank');
+
+  // CORREÇÃO: Recarrega a página após 2 segundos
+  setTimeout(() => {
+    window.location.reload();
+  }, 2000);
+}
+
+
+// ===================================================
+// ÁREA DE ADMINISTRAÇÃO E GESTÃO DE ESTOQUE
+// ===================================================
+
+// Criamos uma "memória" para o site saber que o chefe entrou
+let chefeLogado = false;
+
+async function loginAdmin(event) {
+  if (event) event.preventDefault();
+
+  const userDigitado = document.getElementById('admin-user').value;
+  const senhaDigitada = document.getElementById('admin-pass').value;
+
+  const dadosDoLogin = {
+    usuario: userDigitado,
+    senha: senhaDigitada
+  };
+
+  console.log("O que estou enviando:", dadosDoLogin);
+
+  try {
+    // Nova URL da Vercel apontando para a verificação de Login
+    const url = 'https://skewers-order-backend.vercel.app/admin/login';
+
+    const resposta = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-Type': 'application/json' },
+      body: JSON.stringify(dadosDoLogin)
+    });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok) {
+      alert("Acesso Liberado, Chefe!");
+      chefeLogado = true;
+
+      // ==========================================
+      // A MÁGICA ACONTECE AQUI:
+      // Guarda os dados digitados na memória do site
+      credenciaisAdmin.user = userDigitado;
+      credenciaisAdmin.pass = senhaDigitada;
+      // ==========================================
+
+      fecharModal('modalAdmin');
+      abrirPainelAdmin();
+
+    } else {
+      alert("Ops! " + resultado.erro);
+    }
+
+  } catch (erro) {
+    console.error("Erro na comunicação:", erro);
+  }
+}
+
+// ==========================================
+// 1. ABRE O PAINEL E GUARDA NA MEMÓRIA
+// ==========================================
+async function abrirPainelAdmin() {
+  const cabecalho = document.querySelector('header');
+  if (cabecalho) cabecalho.style.display = 'none';
+
+  const principal = document.querySelector('main');
+  if (principal) principal.style.display = 'none';
+
+  const rodape = document.querySelector('footer');
+  if (rodape) rodape.style.display = 'none';
+
+  const painel = document.getElementById('painel-admin');
+  if (painel) {
+    painel.style.display = 'block';
+  } else {
+    console.error("FALTA NO HTML: Não achei a div id='painel-admin'");
+  }
+
+  // Nova URL da Vercel para puxar a lista de produtos no Painel Admin
+  const url = 'https://skewers-order-backend.vercel.app/api/cardapio';
+
+  const resposta = await fetch(url);
+  const dados = await resposta.json();
+
+  // A MEMÓRIA: Guarda tudo aqui em vez de desenhar direto
+  listaGlobalProdutos = dados.produtos ? dados.produtos : dados;
+
+  desenharPainel();
+}
+
+
+// ==========================================
+// 2. CONSTRÓI A TELA BASEADA NA MEMÓRIA (Com Estoque)
+// ==========================================
+function desenharPainel() {
+  const divLista = document.getElementById('lista-admin');
+  divLista.innerHTML = ''; // Limpa a tela
+
+  // O Botão Mestre que salva o "Carrinho"
+  divLista.innerHTML += `
+    <button onclick="salvarTudoNoBanco()" 
+      style="background-color: #007bff; color: white; padding: 15px; 
+      width: 100%; border: none; border-radius: 5px; cursor: pointer; 
+      font-weight: bold; font-size: 16px; margin-bottom: 20px;">
+      💾 Salvar Todas as Alterações
+    </button>
+  `;
+
+  // Laço que desenha cada produto da memória
+  listaGlobalProdutos.forEach(item => {
+    // Troque a palavra 'ativo' por 'disponivel'
+    let corBotao = item.disponivel ? '#ff4757' : '#2ed573';
+    let textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
+
+    // AQUI ENTRA O NOVO LAYOUT ALINHADO COM FLEXBOX
+    divLista.innerHTML += `
+    <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+      
+      <!-- CABEÇALHO (Nome + Botão Desativar) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div>
+          <h3 style="margin: 0; color: white; font-size: 18px;">${item.nome}</h3>
+          <p style="margin: 0; color: #ccc; font-size: 14px;">R$ ${parseFloat(item.preco).toFixed(2)} - ${item.categoria}</p>
+        </div>
+        
+        <button onclick="alternarStatus(${item.id})" 
+          style="background-color: ${corBotao}; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer; min-width: 100px;">
+          ${textoBotao}
+        </button>
+      </div>
+
+      <!-- CAIXA PRETA (Estoque + Estornar) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; background-color: #222; padding: 12px; border-radius: 5px;">
+        
+        <label style="color: white; font-size: 14px; font-weight: bold;">Estoque Atual:</label>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="number" id="estoque_${item.id}" value="${item.estoque || 0}" 
+            onchange="atualizarEstoqueLocal(${item.id}, this.value)"
+            style="width: 60px; padding: 8px; border-radius: 4px; border: none; text-align: center; font-weight: bold; font-size: 14px;">
+          
+          <button onclick="solicitarEstorno(${item.id}, '${item.nome}')" 
+            style="background-color: #ffa502; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+            ↩ Estornar
+          </button>
+        </div>
+      </div>
+    </div>
+    `;
+  });
+}
+comidas = listaGlobalProdutos.filter(item => item.categoria === 'comida');
+bebidas = listaGlobalProdutos.filter(item => item.categoria === 'bebida');
+
+function desenharCaixinha(item) {
+  const corBotao = item.disponivel ? '#ff4d4d' : '#00cc66';
+  const textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
+
+  const div = document.createElement('div');
+  div.className = 'item-lista';
+  div.style = 'display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 10px;';
+
+  div.innerHTML = `
+      <div style="color: white; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong>${item.nome}</strong><br>
+          <small>R$ ${parseFloat(item.preco).toFixed(2)} - ${item.categoria}</small>
+        </div>
+        <button onclick="alternarStatusLocal(${item.id})" 
+          style="background-color: ${corBotao}; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+          ${textoBotao}
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; background-color: #222; padding: 10px; border-radius: 5px;">
+        <div>
+          <label style="color: white; font-size: 14px;">Estoque Atual:</label>
+          <input type="number" id="estoque_${item.id}" value="${item.estoque || 0}" 
+            onchange="atualizarEstoqueLocal(${item.id}, this.value)"
+            style="width: 60px; padding: 5px; margin-left: 5px; border-radius: 3px; border: 1px solid #ccc; text-align: center;">
+        </div>
+        
+        <button onclick="solicitarEstorno(${item.id}, '${item.nome}')" 
+          style="background-color: #ff9800; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 13px;">
+          ↩️ Estornar
+        </button>
+      </div>
+    `;
+  divLista.appendChild(div);
+}
+
+// Desenhando os títulos e as caixas agrupadas
+divLista.innerHTML += '<h2 style="color: white; margin-top: 15px;">🍖 Carnes</h2>';
+comidas.forEach(desenharCaixinha);
+
+divLista.innerHTML += '<h2 style="color: white; margin-top: 30px;">🥤 Bebidas</h2>';
+bebidas.forEach(desenharCaixinha);
+
+
+
+// ==========================================
+// 3. MUDA A COR NO CLIQUE (NA MEMÓRIA)
+// ==========================================
+function alternarStatus(id) {
+  const produto = listaGlobalProdutos.find(item => item.id === id);
+
+  if (produto) {
+    // Inverte apenas a palavra que o banco de dados entende: disponivel
+    produto.disponivel = !produto.disponivel;
+
+    // Atualiza a tela na hora para o botão ficar vermelho/verde
+    desenharPainel();
+  }
+}
+
+// ==========================================
+// 3.5 FUNÇÕES DE ESTOQUE LOCAL
+// ==========================================
+function atualizarEstoqueLocal(idProduto, novoValor) {
+  const produto = listaGlobalProdutos.find(item => item.id === idProduto);
+  if (produto) {
+    produto.estoque = parseInt(novoValor); // Guarda o valor na memória para salvar depois
+  }
+}
+
+async function solicitarEstorno(idProduto, nomeProduto) {
+  const qtdDevolvida = prompt(`Quantos espetinhos de "${nomeProduto}" foram devolvidos pelo motoboy?`);
+
+  if (!qtdDevolvida || isNaN(qtdDevolvida) || Number(qtdDevolvida) <= 0) {
+    return; // Cancela se o gestor não digitar um número válido
+  }
+
+  try {
+    const url = 'https://skewers-order-backend.vercel.app/admin/estornar';
+    const resposta = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usuario: credenciaisAdmin.user,
+        senha: credenciaisAdmin.pass,
+        itensEstorno: [{ id: idProduto, quantidade: Number(qtdDevolvida) }]
+      })
+    });
+
+    if (resposta.ok) {
+      alert(`${qtdDevolvida} unidade(s) devolvida(s) ao estoque com sucesso!`);
+      // Recarrega o painel para puxar o novo estoque atualizado do banco
+      abrirPainelAdmin();
+    } else {
+      alert("Erro ao processar devolução.");
+    }
+  } catch (erro) {
+    console.error("Erro no estorno:", erro);
+  }
+}
+
+// ==========================================
+// 4. ENVIA O LOTE PARA O BANCO DE DADOS
+// ==========================================
+async function salvarTudoNoBanco() {
+  try {
+    const url = 'https://skewers-order-backend.vercel.app/admin/atualizar-lote';
+
+    const resposta = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usuario: credenciaisAdmin.user,
+        senha: credenciaisAdmin.pass,
+        produtos: listaGlobalProdutos // <-- Atenção à mudança de nome aqui
+      })
+    });
+
+    if (resposta.ok) {
+      alert("Cardápio e Estoque salvos definitivamente no banco de dados!");
+    } else {
+      const resultado = await resposta.json();
+      alert("Erro ao salvar: " + resultado.erro);
+    }
+  } catch (erro) {
+    console.error("Falha na comunicação:", erro);
+  }
+}
+// ==========================================
+// 5. FECHAR O PAINEL E VOLTAR PARA A LOJA
+// ==========================================
+function fecharPainelAdmin() {
+  // 1. Esconde o painel do gerente
+  const painel = document.getElementById('painel-admin');
+  if (painel) painel.style.display = 'none';
+
+  // 2. Mostra a loja dos clientes novamente
+  const cabecalho = document.querySelector('header');
+  if (cabecalho) cabecalho.style.display = 'block';
+
+  const principal = document.querySelector('main');
+  if (principal) principal.style.display = 'block';
+
+  const rodape = document.querySelector('footer');
+  if (rodape) rodape.style.display = 'block';
+
+  // 3. Limpa a memória por segurança (faz "logout")
+  credenciaisAdmin = { user: '', pass: '' };
+
+  // 4. Recarrega o cardápio da tela inicial para mostrar as alterações
+  if (typeof carregarCardapio === 'function') {
+    carregarCardapio();
+  }
+}
