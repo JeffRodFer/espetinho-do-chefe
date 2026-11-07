@@ -18,8 +18,10 @@ const url = 'https://skewers-order-backend.vercel.app/api/cardapio';
 fetch(url)
   .then(resposta => resposta.json())
   .then(dados => {
-    // Vamos ver os dados chegando no painel do navegador!
     console.log("Meus espetinhos:", dados.produtos);
+
+    // A LINHA MÁGICA QUE FALTAVA: Guarda os produtos na memória global!
+    listaGlobalProdutos = dados.produtos;
   })
   .catch(erro => console.error("Erro:", erro));
 
