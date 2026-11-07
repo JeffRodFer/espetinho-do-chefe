@@ -255,40 +255,102 @@ function abrirResumo() {
 }
 
 function enviarPedidoWhatsApp() {
-  const texto = document.getElementById('conteudo-resumo').innerText;
-  const total = document.getElementById('valor-total').innerText;
+  // 1. Captura os dados do cliente e observações
+  // (Certifique-se de que os IDs nomeCliente, telefoneCliente, etc., existem no seu HTML)
+  const nome = document.getElementById('nomeCliente')?.value || 'Cliente não identificado';
+  const telefone = document.getElementById('telefoneCliente')?.value || '';
+  const endereco = document.getElementById('enderecoCliente')?.value || '';
 
-  const querFarofa = document.querySelector('input[name="farofa"]:checked').value;
-  const querVinagrete = document.querySelector('input[name="vinagrete"]:checked').value;
-  const obs = document.getElementById('obs-pedido').value;
+  const querFarofaElement = document.querySelector('input[name="farofa"]:checked');
+  const querFarofa = querFarofaElement ? querFarofaElement.value : '';
 
-  let extras = `\n*Acompanhamentos:*\n`;
-  extras += `- Farofa: ${querFarofa}\n`;
-  extras += `- Vinagrete: ${querVinagrete}\n`;
+  const querVinagreteElement = document.querySelector('input[name="vinagrete"]:checked');
+  const querVinagrete = querVinagreteElement ? querVinagreteElement.value : '';
 
-  if (obs.trim() !== "") {
-    extras += `\n*Observações:*\n${obs}\n`;
+  const obsElement = document.getElementById('obs-pedido');
+  const obs = obsElement ? obsElement.value : '';
+
+  // Lógica de Entrega/Retirada (Ajuste conforme a sua regra)
+  const isEntrega = true;
+  const txtEntrega = isEntrega ? "(X)" : "( )";
+  const txtRetira = !isEntrega ? "(X)" : "( )";
+  const taxaEntrega = isEntrega ? 5.00 : 0.00;
+
+  // 2. Monta os itens e prepara a baixa de estoque
+  let itensTexto = "";
+  let totalSoma = 0;
+  let contadorPedido = 1;
+  const itensComprados = [];
+
+  for (let id in carrinho) {
+    if (carrinho[id] > 0) {
+      const produto = listaGlobalProdutos.find(item => item.id == id);
+      if (produto) {
+        let subtotal = carrinho[id] * produto.preco;
+        totalSoma += subtotal;
+
+        let qtdFormatada = carrinho[id].toString().padStart(2, '0');
+
+        itensTexto += `*Pedido 0${contadorPedido}:*\n`;
+        itensTexto += `${qtdFormatada} ${produto.nome}\n`;
+        if (querFarofa) itensTexto += `Farofa: ${querFarofa}\n`;
+        if (querVinagrete) itensTexto += `Vinagrete: ${querVinagrete}\n`;
+        itensTexto += `R$ ${subtotal.toFixed(2).replace('.', ',')}\n\n`;
+
+        itensComprados.push({ id: produto.id, quantidade: carrinho[id] });
+        contadorPedido++;
+      }
+    }
   }
 
-  let msg = `*Novo Pedido - Espetinho do Chefe*\n\n`;
-  msg += `${texto}\n`;
-  msg += `${extras}\n`;
-  msg += `*${total}*`;
+  if (totalSoma === 0) {
+    alert("O carrinho está vazio!");
+    return;
+  }
 
-  // CORREÇÃO: Usa o número de WhatsApp que veio do seu servidor (.env)
-  let url = `https://wa.me/${numeroZap}?text=` + encodeURIComponent(msg);
+  let valorTotal = totalSoma + taxaEntrega;
 
-  // === NOVO BLOCO: DAR BAIXA AUTOMÁTICA NO ESTOQUE ===
-  const itensComprados = [];
-  const todosItens = [...comidas, ...bebidas];
+  // 3. Geradores de Códigos (Pedido e Verificação)
+  const data = new Date();
+  const stringData = data.getFullYear().toString() +
+    (data.getMonth() + 1).toString().padStart(2, '0') +
+    data.getDate().toString().padStart(2, '0') +
+    data.getHours().toString().padStart(2, '0') +
+    data.getMinutes().toString().padStart(2, '0') +
+    data.getSeconds().toString().padStart(2, '0');
+  const randomID = Math.floor(Math.random() * 999999).toString().padStart(6, '0');
+  const numPedido = `RI-${stringData}-${randomID}`;
+  const hashVerificacao = Math.random().toString(36).substring(2, 14).toUpperCase();
 
-  todosItens.forEach(item => {
-    let qtd = carrinho[item.id];
-    if (qtd > 0) {
-      itensComprados.push({ id: item.id, quantidade: qtd });
-    }
-  });
+  // 4. Monta a Mensagem Final no seu padrão
+  let mensagem =
+    `*${nome}*
+${telefone}
+${endereco}
+Entrega: ${txtEntrega}
+Retira: ${txtRetira}
 
+${itensTexto.trim()}
+---------------------------------------------------------------------------------
+Soma dos Itens = R$ ${totalSoma.toFixed(2).replace('.', ',')}
+Taxa de Entrega = R$ ${taxaEntrega.toFixed(2).replace('.', ',')}
+
+*===================================*
+💰 *VALOR TOTAL: R$ ${valorTotal.toFixed(2).replace('.', ',')}* 💰
+*===================================*
+${obs.trim() !== "" ? `\n*Observações:*\n${obs}\n` : ""}
+Pedido: ${numPedido}
+Verificação: ${hashVerificacao}
+
+💰 *Pagamento via PIX:*
+Chave: 30571173845
+(Por favor, envie o comprovante por aqui!)`;
+
+  // 5. Envia para o WhatsApp mantendo a variável numeroZap
+  let url = `https://wa.me/${numeroZap}?text=` + encodeURIComponent(mensagem);
+  window.open(url, '_blank');
+
+  // 6. === NOVO BLOCO: DAR BAIXA AUTOMÁTICA NO ESTOQUE ===
   if (itensComprados.length > 0) {
     fetch('https://skewers-order-backend.vercel.app/api/registrar-venda', {
       method: 'POST',
@@ -296,11 +358,8 @@ function enviarPedidoWhatsApp() {
       body: JSON.stringify({ itensCarrinho: itensComprados })
     }).catch(erro => console.error("Erro ao abater estoque:", erro));
   }
-  // === FIM DO NOVO BLOCO ===
 
-  window.open(url, '_blank');
-
-  // CORREÇÃO: Recarrega a página após 2 segundos
+  // 7. Recarrega a página após 2 segundos (limpando o carrinho perfeitamente)
   setTimeout(() => {
     window.location.reload();
   }, 2000);
