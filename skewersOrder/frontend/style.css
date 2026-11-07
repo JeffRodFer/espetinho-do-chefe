@@ -176,24 +176,29 @@ header {
 }
 
 /* Rodapé */
-.rodape-fixo {
-    width: 100%;
-    background-color: #0b1320;
+.btn-whatsapp-rodape {
+    background-color: #25D366;
+    /* Verde oficial do WhatsApp */
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+    /* Remove a linha embaixo do texto */
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    box-sizing: border-box;
-    margin-top: 30px;
-    /* Dá um espaço entre o último espetinho e o rodapé */
+    justify-content: center;
+    border: none;
+    font-size: 14px;
 }
 
+/* Caso a mensagem esteja a empurrar os botões, garanta que ela não tem margens ocultas */
 .msg-agradecimento {
     color: white;
     font-size: 14px;
     text-align: center;
     flex: 1;
-    /* Garante que o texto fique sempre no centro exato */
+    margin: 0;
 }
 
 
