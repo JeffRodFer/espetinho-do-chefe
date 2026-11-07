@@ -64,7 +64,7 @@ header {
     position: fixed;
     bottom: 15px;
     right: 15px;
-    top:auto;
+    top: auto;
     z-index: 1000;
 }
 
@@ -176,16 +176,35 @@ header {
 }
 
 /* Rodapé */
-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: rgba(0, 0, 0, 0.8);
+.rodape-fixo {
     position: fixed;
     bottom: 0;
+    left: 0;
     width: 100%;
+    background-color: #0b1320;
+    /* Cor de fundo azul escuro do seu layout */
+    display: flex;
+    justify-content: space-between;
+    /* Distribui os 3 itens perfeitamente */
+    align-items: center;
+    padding: 15px 20px;
+    z-index: 1000;
     box-sizing: border-box;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.4);
+    /* Sombra suave em cima */
+}
+
+.msg-agradecimento {
+    color: white;
+    font-size: 14px;
+    text-align: center;
+    flex: 1;
+    /* Garante que o texto fique sempre no centro exato */
+}
+
+/* Espaço extra no final da lista para o último espetinho não ficar escondido */
+body {
+    padding-bottom: 80px;
 }
 
 .msg-agradecimento {
