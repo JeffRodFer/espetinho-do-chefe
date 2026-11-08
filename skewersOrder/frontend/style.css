@@ -58,18 +58,18 @@ header {
 }
 
 .zap-topo {
-    position: fixed !important;
-    top: 15px !important;
-    right: 15px !important;
-    background-color: #25D366 !important;
-    width: 45px !important;
-    height: 45px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    z-index: 9999 !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  position: fixed !important;
+  top: 25px !important;    /* Aumentado de 15px para 25px para descer o botão */
+  right: 25px !important;  /* Aumentado de 15px para 25px para afastar da borda */
+  background-color: #25D366 !important;
+  width: 45px !important;
+  height: 45px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 9999 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .zap-topo svg {
