@@ -50,27 +50,25 @@ header {
     text-align: center;
 }
 
-.btn-whatsapp {
-    /* O seu visual atual */
-    background-color: #25D366;
-    color: white;
-    padding: 8px 12px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    gap: 5px;
+.zap-topo {
+    position: fixed !important;
+    top: 15px !important;
+    right: 15px !important;
+    background-color: #25D366 !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
 
-    /* A mágica para o Canto Superior Direito */
-    position: fixed;
-    top: 20px;
-    /* Trava no topo da tela */
-    right: 20px;
-    /* Trava na direita da tela */
-    bottom: auto;
-    /* Libera o fundo */
-    z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    /* Uma sombrinha leve para destacar */
+.zap-topo svg {
+    width: 28px !important;
+    height: 28px !important;
+    fill: white !important;
 }
 
 /* Botão Iniciar Pedido Piscante */
@@ -291,36 +289,39 @@ header {
 
 /* Caixa que segura os dois botões lado a lado */
 .container-botoes-finais {
-  display: flex;
-  gap: 15px; /* Espaço entre os dois botões */
-  width: 100%;
-  padding: 10px 15px; /* Margem lateral para não colar na tela do celular */
-  box-sizing: border-box;
-  margin-top: 15px;
+    display: flex;
+    gap: 15px;
+    /* Espaço entre os dois botões */
+    width: 100%;
+    padding: 10px 15px;
+    /* Margem lateral para não colar na tela do celular */
+    box-sizing: border-box;
+    margin-top: 15px;
 }
 
 /* Base igual para os dois botões (mesmo tamanho e formato) */
 .btn-metade {
-  flex: 1; /* Faz dividirem o espaço 50% / 50% */
-  padding: 15px 5px;
-  font-size: 15px;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-transform: uppercase;
+    flex: 1;
+    /* Faz dividirem o espaço 50% / 50% */
+    padding: 15px 5px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
 }
 
 /* Cor específica do botão Limpar */
 .btn-limpar-metade {
-  background-color: #ff4757; 
+    background-color: #ff4757;
 }
 
 /* Cor específica do botão Encerrar */
 .btn-encerrar-metade {
-  background-color: #ffa502; 
+    background-color: #ffa502;
 }
