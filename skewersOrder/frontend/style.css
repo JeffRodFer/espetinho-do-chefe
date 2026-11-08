@@ -45,12 +45,15 @@ header {
 }
 
 .logo-titulo {
-    font-size: 24px; /* Reduzido ligeiramente para caber melhor */
+    font-size: 24px;
+    /* Reduzido ligeiramente para caber melhor */
     font-weight: bold;
     text-align: center;
     width: 100%;
-    padding-right: 60px; /* O SEGREDO: Cria uma margem de segurança à direita */
-    box-sizing: border-box; /* Garante que o padding não quebra o layout */
+    padding-right: 60px;
+    /* O SEGREDO: Cria uma margem de segurança à direita */
+    box-sizing: border-box;
+    /* Garante que o padding não quebra o layout */
     margin-top: 5px;
 }
 
@@ -328,4 +331,33 @@ header {
 /* Cor específica do botão Encerrar */
 .btn-encerrar-metade {
     background-color: #ffa502;
+}
+
+
+.rodape-fixo {
+    display: flex;
+    justify-content: center;
+    /* Centraliza o botão na tela */
+    align-items: center;
+    padding: 20px;
+    /* Dá um respiro ao redor do botão */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Se quiser deixar o botão um pouco maior e mais elegante, atualize também o .btn-gerenciar */
+.btn-gerenciar {
+    background-color: #666666;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    /* Mais preenchimento interno */
+    border-radius: 8px;
+    /* Bordas mais arredondadas combinando com os outros */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: bold;
 }
