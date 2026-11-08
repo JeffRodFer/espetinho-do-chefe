@@ -180,22 +180,6 @@ header {
     cursor: pointer;
 }
 
-/* Rodapé */
-.btn-whatsapp-rodape {
-    background-color: #25D366;
-    /* Verde oficial do WhatsApp */
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-weight: bold;
-    text-decoration: none;
-    /* Remove a linha embaixo do texto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    font-size: 14px;
-}
 
 /* Caso a mensagem esteja a empurrar os botões, garanta que ela não tem margens ocultas */
 .msg-agradecimento {
