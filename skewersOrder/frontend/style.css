@@ -60,7 +60,7 @@ header {
 .zap-topo {
   position: fixed !important;
   top: 10px !important;    /* Aumentado de 15px para 25px para descer o botão */
-  right: 25px !important;  /* Aumentado de 15px para 25px para afastar da borda */
+  right: 10px !important;  /* Aumentado de 15px para 25px para afastar da borda */
   background-color: #25D366 !important;
   width: 45px !important;
   height: 45px !important;
