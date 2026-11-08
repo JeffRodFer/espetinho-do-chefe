@@ -45,11 +45,13 @@ header {
 }
 
 .logo-titulo {
-    font-size: 28px; /* Aumentamos de 20px para 28px para dar mais destaque */
+    font-size: 24px; /* Reduzido ligeiramente para caber melhor */
     font-weight: bold;
     text-align: center;
-    width: 100%; /* Garante que o texto fique centralizado perfeitamente */
-    margin-top: 5px; /* Dá um pequeno respiro no topo para alinhar com o botão */
+    width: 100%;
+    padding-right: 60px; /* O SEGREDO: Cria uma margem de segurança à direita */
+    box-sizing: border-box; /* Garante que o padding não quebra o layout */
+    margin-top: 5px;
 }
 
 .zap-topo {
