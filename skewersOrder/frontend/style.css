@@ -51,21 +51,26 @@ header {
 }
 
 .btn-whatsapp {
-    /* O seu visual atual (mantivemos tudo) */
+    /* O seu visual atual */
     background-color: #25D366;
     color: white;
-    padding: 4px 6px;
+    padding: 8px 12px;
     text-decoration: none;
     border-radius: 5px;
     font-weight: bold;
     gap: 5px;
 
-    /* Novas linhas para fixar no canto direito */
+    /* A mágica para o Canto Superior Direito */
     position: fixed;
-    bottom: 15px;
-    right: 15px;
-    top: auto;
+    top: 20px;
+    /* Trava no topo da tela */
+    right: 20px;
+    /* Trava na direita da tela */
+    bottom: auto;
+    /* Libera o fundo */
     z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    /* Uma sombrinha leve para destacar */
 }
 
 /* Botão Iniciar Pedido Piscante */
