@@ -553,14 +553,17 @@ function desenharPainel() {
 // 3. MUDA A COR NO CLIQUE (NA MEMÓRIA)
 // ==========================================
 function alternarStatus(id) {
-  const produto = listaGlobalProdutos.find(item => item.id === id);
+  // O segredo está aqui: transformar os dois lados em String (texto) antes de comparar
+  const produto = listaGlobalProdutos.find(item => String(item.id) === String(id));
 
   if (produto) {
-    // Inverte apenas a palavra que o banco de dados entende: disponivel
+    // Inverte o status de disponível
     produto.disponivel = !produto.disponivel;
 
     // Atualiza a tela na hora para o botão ficar vermelho/verde
     desenharPainel();
+  } else {
+    console.error("Erro: Produto não encontrado com o ID:", id);
   }
 }
 
