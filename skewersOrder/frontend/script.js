@@ -472,14 +472,34 @@ function desenharPainel() {
     </button>
   `;
 
-  // Laço que desenha cada produto da memória
-  listaGlobalProdutos.forEach(item => {
-    // Troque a palavra 'ativo' por 'disponivel'
+  // === MUDANÇA AQUI: Cria os containers separados no HTML ===
+  divLista.innerHTML += `
+    <div style="margin-bottom: 30px;">
+      <h3 style="color: #ffb300; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 15px;">🥩 Carnes e Acompanhamentos</h3>
+      <div id="admin-container-carnes"></div>
+    </div>
+
+    <div style="margin-bottom: 30px;">
+      <h3 style="color: #ffb300; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 15px;">🥤 Bebidas</h3>
+      <div id="admin-container-bebidas"></div>
+    </div>
+  `;
+
+  // Pega as divs que acabamos de criar para injetar os itens dentro delas
+  const containerCarnes = document.getElementById('admin-container-carnes');
+  const containerBebidas = document.getElementById('admin-container-bebidas');
+
+  // === MUDANÇA AQUI: Separa os arrays de comida e bebida ===
+  const comidasPainel = listaGlobalProdutos.filter(item => item.categoria.toLowerCase() === 'comida');
+  const bebidasPainel = listaGlobalProdutos.filter(item => item.categoria.toLowerCase() === 'bebida');
+
+  // Função auxiliar para desenhar a linha do produto igual você já tinha, 
+  // mas que agora aceita o "container" de destino (carnes ou bebidas)
+  function desenharItemAdmin(item, containerDestino) {
     let corBotao = item.disponivel ? '#ff4757' : '#2ed573';
     let textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
 
-    // AQUI ENTRA O NOVO LAYOUT ALINHADO COM FLEXBOX
-    divLista.innerHTML += `
+    containerDestino.innerHTML += `
     <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
       
       <!-- CABEÇALHO (Nome + Botão Desativar) -->
@@ -513,10 +533,17 @@ function desenharPainel() {
       </div>
     </div>
     `;
-  });
+  }
+
+  // === MUDANÇA AQUI: Executa a função para as carnes e depois para as bebidas ===
+  comidasPainel.forEach(item => desenharItemAdmin(item, containerCarnes));
+  bebidasPainel.forEach(item => desenharItemAdmin(item, containerBebidas));
 }
-comidas = listaGlobalProdutos.filter(item => item.categoria === 'comida');
-bebidas = listaGlobalProdutos.filter(item => item.categoria === 'bebida');
+
+// Obs: Apague aquelas duas linhas antigas soltas no final:
+// comidas = listaGlobalProdutos.filter... 
+// bebidas = listaGlobalProdutos.filter...
+// Elas já estão sendo tratadas dentro da função agora.
 
 
 
