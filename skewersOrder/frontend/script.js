@@ -277,39 +277,36 @@ function enviarPedidoWhatsApp() {
   const txtRetira = !isEntrega ? "(X)" : "( )";
   const taxaEntrega = isEntrega ? 5.00 : 0.00;
 
-  // 2. Monta os itens e prepara a baixa de estoque
-  let itensTexto = "";
+  / 2. Monta os itens e prepara a baixa de estoque
+  let itensTexto = "*Resumo dos Itens:*\n\n";
   let totalSoma = 0;
-  let contadorPedido = 1;
   const itensComprados = [];
 
   for (let id in carrinho) {
     if (carrinho[id] > 0) {
-      const produto = listaGlobalProdutos.find(item => item.id == id);
+      // Usamos String() por garantia, devido aos IDs com letras do Neon
+      const produto = listaGlobalProdutos.find(item => String(item.id) === String(id));
+
       if (produto) {
         let subtotal = carrinho[id] * produto.preco;
         totalSoma += subtotal;
 
         let qtdFormatada = carrinho[id].toString().padStart(2, '0');
 
-        itensTexto += `*Pedido 0${contadorPedido}:*\n`;
-        itensTexto += `${qtdFormatada} ${produto.nome}\n`;
-        if (querFarofa) itensTexto += `Farofa: ${querFarofa}\n`;
-        if (querVinagrete) itensTexto += `Vinagrete: ${querVinagrete}\n`;
-        itensTexto += `R$ ${subtotal.toFixed(2).replace('.', ',')}\n\n`;
+        // Cria a linha limpa. Ex: "▪️ 02x Asinha - R$ 16,00"
+        itensTexto += `▪️ ${qtdFormatada}x ${produto.nome} - R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
 
         itensComprados.push({ id: produto.id, quantidade: carrinho[id] });
-        contadorPedido++;
       }
     }
   }
 
-  if (totalSoma === 0) {
-    alert("O carrinho está vazio!");
-    return;
+  // Adiciona os acompanhamentos UMA ÚNICA VEZ no final da lista de itens
+  if (querFarofa || querVinagrete) {
+    itensTexto += `\n*Acompanhamentos (Espetos):*\n`;
+    if (querFarofa) itensTexto += `Farofa: ${querFarofa}\n`;
+    if (querVinagrete) itensTexto += `Vinagrete: ${querVinagrete}\n`;
   }
-
-  let valorTotal = totalSoma + taxaEntrega;
 
   // 3. Geradores de Códigos (Pedido e Verificação)
   const data = new Date();
