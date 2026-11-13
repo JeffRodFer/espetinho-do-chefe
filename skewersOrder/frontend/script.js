@@ -1,29 +1,30 @@
+// === 1. ADICIONE A IDENTIDADE DO CLIENTE AQUI NA LINHA 1 ===
+const ID_CLIENTE = 1;
+
 // ATENÇÃO: Esta linha deve ficar solta no topo do arquivo script.js!
 let credenciaisAdmin = { user: '', pass: '' };
-let listaGlobalProdutos = []; // Adicione esta linha!
-
-
+let listaGlobalProdutos = [];
 
 // ---------------------------------------------------
 // COMUNICAÇÃO COM O SERVIDOR
 // ---------------------------------------------------
 
-// DICA: Use localhost enquanto estiver programando. 
-// Troque para a Vercel apenas quando for publicar o site.
-const API_URL = 'https://skewers-order-backend.vercel.app/api/cardapio';
+// === 2. ALTERE AS URLs AQUI PARA INCLUIR O ID DO CLIENTE ===
+// Note que agora usamos crases ( ` ) no lugar de aspas simples ( ' )
+const API_URL = `https://skewers-order-backend.vercel.app/api/cardapio?usuario=${ID_CLIENTE}`;
+const url = `https://skewers-order-backend.vercel.app/api/cardapio?usuario=${ID_CLIENTE}`;
 
-// ARQUIVO: script.js
-const url = 'https://skewers-order-backend.vercel.app/api/cardapio';
-
+// Daqui para baixo, o seu código continua EXATAMENTE IGUAL:
 fetch(url)
   .then(resposta => resposta.json())
   .then(dados => {
     console.log("Meus espetinhos:", dados.produtos);
-
     // A LINHA MÁGICA QUE FALTAVA: Guarda os produtos na memória global!
     listaGlobalProdutos = dados.produtos;
   })
   .catch(erro => console.error("Erro:", erro));
+
+// ... resto do seu código (comidas, bebidas, function carregarCardapio) ...
 
 let comidas = [];
 let bebidas = [];
