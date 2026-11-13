@@ -344,9 +344,12 @@ ${obs.trim() !== "" ? `\n*Observações:*\n${obs}\n` : ""}
 Pedido: ${numPedido}
 Verificação: ${hashVerificacao}
 
-💰 *Pagamento via PIX:*
-Chave: 30571173845
-(Por favor, envie o comprovante por aqui ou solicite um link para pagamento!)`;
+❖ *Pagamento via PIX:*
+🔑 Chave: 30571173845
+(Por favor, envie o comprovante por aqui!)
+
+💳 *Pagamento no Cartão / Dinheiro:*
+(Pagamento na entrega/retirada ou link de pagamento!)`;
 
   // 5. Envia para o WhatsApp
   let url = `https://wa.me/${numeroZap}?text=` + encodeURIComponent(mensagem);
