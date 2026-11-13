@@ -19,16 +19,16 @@ app.use(express.json());
 // 2. ROTAS PÚBLICAS (Cliente)
 // ==========================================
 
-// Rota de Health Check (Para ver se está online)
-app.get('/', (req, res) => {
-  res.send("O motor do Espetinho do Chefe está Online!");
-});
-
 // ROTA 1: Enviar o cardápio real e o WhatsApp
 app.get('/api/cardapio', async (req, res) => {
   try {
-    const query = 'SELECT * FROM produtos ORDER BY nome ASC';
-    const resultado = await pool.query(query);
+    // 1. Pega o ID da URL (ex: /api/cardapio?usuario=1). 
+    // O "|| 1" é a trava de segurança para o Espetinho Matriz.
+    const usuarioId = req.query.usuario || 1;
+
+    // 2. Filtra no banco apenas os itens que pertencem a esse usuário
+    const query = 'SELECT * FROM produtos WHERE usuario_id = $1 ORDER BY nome ASC';
+    const resultado = await pool.query(query, [usuarioId]);
 
     // Entrega o WhatsApp (do .env) e os produtos (do banco)
     return res.json({
