@@ -460,9 +460,15 @@ async function abrirPainelAdmin() {
 // ==========================================
 function desenharPainel() {
   const divLista = document.getElementById('lista-admin');
+
+  if (!divLista) {
+    console.error("Erro: A div 'lista-admin' sumiu do HTML!");
+    return;
+  }
+
   divLista.innerHTML = ''; // Limpa a tela
 
-  // O Botão Mestre que salva o "Carrinho"
+  // 1. O Botão Mestre que salva o "Carrinho" do administrador
   divLista.innerHTML += `
     <button onclick="salvarTudoNoBanco()" 
       style="background-color: #007bff; color: white; padding: 15px; 
@@ -472,7 +478,7 @@ function desenharPainel() {
     </button>
   `;
 
-  // === MUDANÇA AQUI: Cria os containers separados no HTML ===
+  // 2. Cria os blocos vazios para Carnes e Bebidas
   divLista.innerHTML += `
     <div style="margin-bottom: 30px;">
       <h3 style="color: #ffb300; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 15px;">🥩 Carnes e Acompanhamentos</h3>
@@ -485,21 +491,21 @@ function desenharPainel() {
     </div>
   `;
 
-  // Pega as divs que acabamos de criar para injetar os itens dentro delas
+  // 3. Pega as divs que acabamos de criar
   const containerCarnes = document.getElementById('admin-container-carnes');
   const containerBebidas = document.getElementById('admin-container-bebidas');
 
-  // === MUDANÇA AQUI: Separa os arrays de comida e bebida ===
+  // 4. Separa os produtos da memória
   const comidasPainel = listaGlobalProdutos.filter(item => item.categoria.toLowerCase() === 'comida');
   const bebidasPainel = listaGlobalProdutos.filter(item => item.categoria.toLowerCase() === 'bebida');
 
-  // Função auxiliar para desenhar a linha do produto igual você já tinha, 
-  // mas que agora aceita o "container" de destino (carnes ou bebidas)
+  // 5. Função interna que desenha cada item
   function desenharItemAdmin(item, containerDestino) {
     let corBotao = item.disponivel ? '#ff4757' : '#2ed573';
     let textoBotao = item.disponivel ? 'Desativar' : 'Ativar';
 
-    containerDestino.innerHTML += `
+    // Usamos insertAdjacentHTML para melhor performance e não quebrar a tela com IDs de letras
+    containerDestino.insertAdjacentHTML('beforeend', `
     <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);">
       
       <!-- CABEÇALHO (Nome + Botão Desativar) -->
@@ -509,7 +515,8 @@ function desenharPainel() {
           <p style="margin: 0; color: #ccc; font-size: 14px;">R$ ${parseFloat(item.preco).toFixed(2)} - ${item.categoria}</p>
         </div>
         
-        <button onclick="alternarStatus(${item.id})" 
+        <!-- Aspas simples no ID adicionadas aqui -->
+        <button onclick="alternarStatus('${item.id}')" 
           style="background-color: ${corBotao}; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer; min-width: 100px;">
           ${textoBotao}
         </button>
@@ -522,28 +529,23 @@ function desenharPainel() {
         
         <div style="display: flex; gap: 10px; align-items: center;">
           <input type="number" id="estoque_${item.id}" value="${item.estoque || 0}" 
-            onchange="atualizarEstoqueLocal(${item.id}, this.value)"
+            onchange="atualizarEstoqueLocal('${item.id}', this.value)"
             style="width: 60px; padding: 8px; border-radius: 4px; border: none; text-align: center; font-weight: bold; font-size: 14px;">
           
-          <button onclick="solicitarEstorno(${item.id}, '${item.nome}')" 
+          <button onclick="solicitarEstorno('${item.id}', '${item.nome}')" 
             style="background-color: #ffa502; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
             ↩ Estornar
           </button>
         </div>
       </div>
     </div>
-    `;
+    `);
   }
 
-  // === MUDANÇA AQUI: Executa a função para as carnes e depois para as bebidas ===
+  // 6. Roda a função para preencher a tela
   comidasPainel.forEach(item => desenharItemAdmin(item, containerCarnes));
   bebidasPainel.forEach(item => desenharItemAdmin(item, containerBebidas));
 }
-
-// Obs: Apague aquelas duas linhas antigas soltas no final:
-// comidas = listaGlobalProdutos.filter... 
-// bebidas = listaGlobalProdutos.filter...
-// Elas já estão sendo tratadas dentro da função agora.
 
 
 
