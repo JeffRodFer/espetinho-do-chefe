@@ -277,7 +277,7 @@ function enviarPedidoWhatsApp() {
   const txtRetira = !isEntrega ? "(X)" : "( )";
   const taxaEntrega = isEntrega ? 5.00 : 0.00;
 
-  / 2. Monta os itens e prepara a baixa de estoque
+  // 2. Monta os itens e prepara a baixa de estoque
   let itensTexto = "*Resumo dos Itens:*\n\n";
   let totalSoma = 0;
   const itensComprados = [];
